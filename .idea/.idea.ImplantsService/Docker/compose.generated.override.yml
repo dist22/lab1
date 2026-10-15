@@ -1,0 +1,21 @@
+# This is a generated file. Not intended for manual editing.
+services:
+  web:
+    build:
+      context: "D:\\C#Projects\\ImplantsService"
+      dockerfile: "ImplantsService/Dockerfile"
+      target: "base"
+    command: []
+    entrypoint:
+    - "dotnet"
+    - "/app/bin/Debug/net8.0/ImplantsService.dll"
+    environment:
+      ASPNETCORE_ENVIRONMENT: "Development"
+      DOTNET_USE_POLLING_FILE_WATCHER: "true"
+    image: "implantsservice:dev"
+    ports: []
+    volumes:
+    - "D:\\C#Projects\\ImplantsService\\ImplantsService:/app:rw"
+    - "D:\\C#Projects\\ImplantsService:/src:rw"
+    - "C:\\Users\\Admin\\.nuget\\packages:/root/.nuget/packages"
+    working_dir: "/app"
