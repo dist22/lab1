@@ -61,9 +61,12 @@ public class ImplantsController(AppDbContext context) : ControllerBase
     [HttpGet("implants/{id}")]
     public async Task<IActionResult> GetById(Guid id)
     {
-        var implant = await context.Implants.FindAsync(id);
-        if (implant == null) return NotFound();
-        return Ok(implant);
+        var item = await context.Implants
+            .AsNoTracking()
+            .FirstOrDefaultAsync(x => x.Id == id);
+
+        if (item == null) return NotFound();
+        return Ok(item);
     }
 
     [HttpPut("implants/{id}")]
