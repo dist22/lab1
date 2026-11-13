@@ -17,7 +17,7 @@ public class ImplantDto
     public string SerialNumber { get; set; } = string.Empty;
     
     [Required]
-    public DateTime InstallationDate { get; set; }
+    public DateTime? InstallationDate { get; set; }
     
     [Required]
     [Range(1, 30, ErrorMessage = "Термін служби має бути від 1 до 30 років.")]
