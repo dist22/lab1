@@ -21,7 +21,7 @@
       context: .
       dockerfile: ImplantsService/Dockerfile
     environment:
-      ConnectionStrings__DefaultConnection: "Host=db;Port=5432;Database=implants_db;Username=postgres;Password=${DB_PASSWORD};Maximum Pool Size=300;"
+      ConnectionStrings__DefaultConnection: "Host=db;Port=5432;Database=implants_db;Username=postgres;Password=${DB_PASSWORD};Maximum Pool Size=30;Minimum Pool Size=5;"
     depends_on:
       db:
         condition: service_healthy
@@ -30,13 +30,13 @@
     deploy:
       resources:
         limits:
-          cpus: '0.25'
-          memory: 512M
+          cpus: '1.5'
+          memory: 1G
 
   balancer:
     image: nginx:alpine
     ports:
-      - "8080:80"
+      - "8088:80"
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
     depends_on:
@@ -52,6 +52,7 @@
       - "9090:9090"
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
     networks:

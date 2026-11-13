@@ -12,6 +12,11 @@ public class ImplantsController(AppDbContext context) : ControllerBase
     [HttpPost("implants")]
     public async Task<IActionResult> Create([FromBody] ImplantDto dto)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
         if (await context.Implants.AnyAsync(i => i.SerialNumber == dto.SerialNumber))
         {
             return BadRequest(new { Error = "Серійний номер вже існує." });
@@ -24,7 +29,7 @@ public class ImplantsController(AppDbContext context) : ControllerBase
             DeviceType = dto.DeviceType,
             Manufacturer = dto.Manufacturer,
             SerialNumber = dto.SerialNumber,
-            InstallationDate = dto.InstallationDate,
+            InstallationDate = NormalizeToUtc(dto.InstallationDate),
             LifespanYears = dto.LifespanYears
         };
 
@@ -72,6 +77,11 @@ public class ImplantsController(AppDbContext context) : ControllerBase
     [HttpPut("implants/{id}")]
     public async Task<IActionResult> Update(Guid id, [FromBody] ImplantDto dto)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
         var implant = await context.Implants.FindAsync(id);
         if (implant == null) return NotFound();
 
@@ -84,7 +94,7 @@ public class ImplantsController(AppDbContext context) : ControllerBase
         implant.DeviceType = dto.DeviceType;
         implant.Manufacturer = dto.Manufacturer;
         implant.SerialNumber = dto.SerialNumber;
-        implant.InstallationDate = dto.InstallationDate;
+        implant.InstallationDate = NormalizeToUtc(dto.InstallationDate);
         implant.LifespanYears = dto.LifespanYears;
 
         await context.SaveChangesAsync();
@@ -112,5 +122,18 @@ public class ImplantsController(AppDbContext context) : ControllerBase
         }
         
         return StatusCode(503, new { Status = "Unhealthy", Error = "Database is not available" });
+    }
+    
+    private static DateTime NormalizeToUtc(DateTime? date)
+    {
+        if (!date.HasValue) return DateTime.UtcNow;
+
+        var value = date.Value;
+        return value.Kind switch
+        {
+            DateTimeKind.Utc => value,
+            DateTimeKind.Unspecified => DateTime.SpecifyKind(value, DateTimeKind.Utc),
+            _ => value.ToUniversalTime()
+        };
     }
 }
